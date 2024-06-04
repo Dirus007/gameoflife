@@ -1,6 +1,6 @@
 // const { get } = require("animejs");
-const WIDTH = 60;
-const HEIGHT = 30;
+let WIDTH = 60;
+let HEIGHT = 30;
 
 let ALIVE_COLOR = "#00246B";
 let DEAD_COLOR = "#CADCFC";
@@ -10,10 +10,12 @@ const DEAD = 0;
 
 
 // 2D array to hold cell states
-let cells = new Array(HEIGHT);
-for (let i = 0; i < HEIGHT; i++) {
-  cells[i] = new Array(WIDTH);
-}
+// let cells = new Array(HEIGHT);
+// for (let i = 0; i < HEIGHT; i++) {
+//   cells[i] = new Array(WIDTH);
+// }
+let cells = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(DEAD));//added for change in grid size
+
 
 let animationSpeed = 400;
 let randomValue = 20;
@@ -28,6 +30,73 @@ let aliveCount = 0;
 
 >>>>>>> refs/remotes/origin/main
 
+//function to change grid size
+document.addEventListener("DOMContentLoaded", () => {
+  initializeGrid();
+});
+
+function initializeGrid() {
+  const gridContainer = document.getElementById("main-grid");
+
+  gridContainer.style.gridTemplateRows = `repeat(${HEIGHT}, calc(100% / ${HEIGHT}))`;
+  gridContainer.style.gridTemplateColumns = `repeat(${WIDTH}, calc(100% / ${WIDTH}))`;
+
+  for (let i = 0; i < HEIGHT; i++) {
+    for (let j = 0; j < WIDTH; j++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.dataset.row = i;
+      cell.dataset.col = j;
+      cell.addEventListener("click", () => toggleCellState(i, j));
+      gridContainer.appendChild(cell);
+    }
+  }
+
+  drawCells();
+}
+
+function drawCells() {
+  const gridContainer = document.getElementById("main-grid");
+  const cellElements = gridContainer.getElementsByClassName("cell");
+
+  Array.from(cellElements).forEach(cell => {
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    cell.style.backgroundColor = cells[row][col] === ALIVE ? ALIVE_COLOR : DEAD_COLOR;
+  });
+}
+
+function toggleCellState(row, col) {
+  cells[row][col] = cells[row][col] === ALIVE ? DEAD : ALIVE;
+  drawCells();
+}
+
+function changeGridSize() {
+  const newHeight = parseInt(document.getElementById("new-height").value);
+  if (isNaN(newHeight) || newHeight <= 0) {
+    alert("Please enter a valid height value.");
+    return;
+  }
+
+  const newWidth = newHeight * 2;
+  WIDTH = newWidth;
+  HEIGHT = newHeight;
+
+  cells = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(DEAD));
+
+  const gridContainer = document.getElementById("main-grid");
+  gridContainer.style.gridTemplateRows = `repeat(${HEIGHT}, calc(100% / ${HEIGHT}))`;
+  gridContainer.style.gridTemplateColumns = `repeat(${WIDTH}, calc(100% / ${WIDTH}))`;
+
+  while (gridContainer.firstChild) {
+    gridContainer.removeChild(gridContainer.firstChild);
+  }
+
+  initializeGrid();
+}
+
+
+
 
 function onResizeAboveThreshold() {
   const thresholdWidth = 750;
@@ -36,11 +105,11 @@ function onResizeAboveThreshold() {
   if (currentWidth >= thresholdWidth) {
     document.querySelector(".sidenav").style.left = "0px"
   }else{
-    document.querySelector(".sidenav").style.left = "-255px"
+    document.querySelector(".sidenav").style.left = "0px"
   }
 }
-onResizeAboveThreshold();
-window.addEventListener('resize', onResizeAboveThreshold);
+// onResizeAboveThreshold();
+// window.addEventListener('resize', onResizeAboveThreshold);
 
 
 document.querySelector(".hamburger").addEventListener("click", () => {
@@ -50,7 +119,7 @@ document.querySelector(".hamburger").addEventListener("click", () => {
 
 
 document.querySelector(".cross").addEventListener("click", () => {
-  document.querySelector(".sidenav").style.left = "-250px"
+  document.querySelector(".sidenav").style.left = "0px"
 })
 
 var slider = document.getElementById("randomVal");
@@ -64,6 +133,7 @@ slider.oninput = function () {
 
 document.addEventListener("DOMContentLoaded", function () {
   // Generate the grid
+  const gridContainer = document.getElementById('main-grid');
   for (let i = 0; i < HEIGHT; i++) {
     // Push an empty array for each row
     for (let j = 0; j < WIDTH; j++) {
@@ -81,14 +151,18 @@ document.addEventListener("DOMContentLoaded", function () {
   // set grid container size according to ratio
   gridContainer.style.minHeight = "30vw";
   gridContainer.style.minWidth = "60vw";
-  handleDropdowns();
-  addEventListenersToCells();
   drawCells();
+  addEventListenersToCells();
+  handleDropdowns();
+  onResizeAboveThreshold();
+  window.addEventListener('resize', onResizeAboveThreshold);
 });
+
 
 // draw the cells according to the state
 // using style of "cell" class to change the color of the cell, iterate over it
 function drawCells() {
+  const gridContainer = document.getElementById('main-grid');
   const cellElements = gridContainer.querySelectorAll(".cell");
   cells.forEach((row, i) => {
     row.forEach((cell, j) => {
@@ -189,29 +263,6 @@ async function getThemes() {
   }
 }
 
-// async function selectTheme(themeName) {
-//   try {
-//     const themesList = await getThemes();
-//     if (!themesList) {
-//       return;
-//     }
-
-//     const theme = themesList[themeName];
-//     if (theme) {
-//       const root = document.documentElement;
-//       for (const key in theme) {
-//         root.style.setProperty(key, theme[key]);
-//       }
-//       ALIVE_COLOR = theme["ALIVE_COLOR"];
-//       DEAD_COLOR = theme["DEAD_COLOR"];
-//     } else {
-//       console.error("Theme not found");
-//     }
-//     drawCells();
-//   } catch (error) {
-//     console.error("Error:", error);
-//   }
-// }
 
 async function selectTheme(themeName) {
   try {
@@ -221,41 +272,55 @@ async function selectTheme(themeName) {
     }
 
     const theme = themesList[themeName];
-    if (theme)
-    {
+    if (theme) {
       const root = document.documentElement;
+      const backgroundContainer = document.body; // Change this to the appropriate container if needed
+
       for (const key in theme) {
         root.style.setProperty(key, theme[key]);
       }
-      
+
+      // Check if the theme contains a gradient
+      if (theme["background-image"]) {
+        backgroundContainer.style.backgroundImage = theme["background-image"];
+        backgroundContainer.style.backgroundColor = ''; // Reset background color
+      } else {
+        backgroundContainer.style.backgroundImage = 'none'; // Remove gradient
+        backgroundContainer.style.backgroundColor = theme["background-color"]; // Apply solid color
+        var container = document.querySelector('.game');
+        container.style.background = '';
+      }
 
       root.style.setProperty('--scrollbar-color', theme['--primary-color']);
       ALIVE_COLOR = theme["ALIVE_COLOR"];
       DEAD_COLOR = theme["DEAD_COLOR"];
-      let reverse_button = document.getElementById('fast-reverse-button')
-      let forward = document.getElementById('fast-forward-button')
-      let pause_button = document.getElementById('play-pause-button')
+      let reverse_button = document.getElementById('fast-reverse-button');
+      let forward = document.getElementById('fast-forward-button');
+      let pause_button = document.getElementById('play-pause-button');
 
-      if(theme["DEAD_COLOR"]=="#80ffff"){
-        reverse_button.innerHTML="<img class=icon id=fast-reverse-icon src=./images/Fast-Reverse-Button-Dark.svg alt=Play />"
-        forward.innerHTML="<img class=icon id=fast-forward-icon src=./images/Fast-Forward-Button-Dark.svg alt=Fast />"
-        pause_button.innerHTML="<img class=icon id=play-pause-icon src=./images/Play-Button-Dark.svg alt=Slow />"
-      }else{
-        reverse_button.innerHTML="<img class=icon id=fast-reverse-icon src=./images/Fast-Reverse-Button.svg alt=Play />"
-        forward.innerHTML="<img class=icon id=fast-forward-icon src=./images/Fast-Forward-Button.svg alt=Fast />"
-        pause_button.innerHTML="<img class=icon id=play-pause-icon src=./images/Play-Button.svg alt=Slow />"
+      if (theme["DEAD_COLOR"] == "#80ffff") {
+        reverse_button.innerHTML = "<img class=icon id=fast-reverse-icon src=./images/Fast-Reverse-Button-Dark.svg alt=Play />";
+        forward.innerHTML = "<img class=icon id=fast-forward-icon src=./images/Fast-Forward-Button-Dark.svg alt=Fast />";
+        pause_button.innerHTML = "<img class=icon id=play-pause-icon src=./images/Play-Button-Dark.svg alt=Slow />";
+      } else {
+        reverse_button.innerHTML = "<img class=icon id=fast-reverse-icon src=./images/Fast-Reverse-Button.svg alt=Play />";
+        forward.innerHTML = "<img class=icon id=fast-forward-icon src=./images/Fast-Forward-Button.svg alt=Fast />";
+        pause_button.innerHTML = "<img class=icon id=play-pause-icon src=./images/Play-Button.svg alt=Slow />";
       }
-    }
-    else
-    {
+
+      // If switching from a gradient theme to a solid color theme, reset the background
+      if (!theme["background-image"]) {
+        backgroundContainer.style.backgroundImage = 'none';
+      }
+    } else {
       console.error("Theme not found");
     }
     drawCells();
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Error:", error);
   }
 }
+
 
 
 function increaseSpeed() {
@@ -284,6 +349,7 @@ function startAnimation() {
   const playPauseIcon = document.getElementById("play-pause-icon");
   if (isEmpty()) {
     playPauseIcon.src = DEAD_COLOR=="#80ffff"?"./images/Play-Button-Dark.svg": "./images/Play-Button.svg";
+    // playPauseIcon.src = "./images/Play-Button.svg";
     if (!areEventListenersAdded) {
       addEventListenersToCells();
       areEventListenersAdded = true;
@@ -317,6 +383,11 @@ function startAnimation() {
   if (isAnimating) {
     animate();
   }
+}
+
+
+function toggleWarp() {
+  isWarpEnabled = !isWarpEnabled;
 }
 
 //randomGrid()
@@ -525,4 +596,53 @@ function appendPatternButtons() {
     historyContainer.appendChild(button);
   });
 }
+
+document.querySelectorAll('[data-tooltip]').forEach(elem => {
+  let tooltipTimeout;
+
+  elem.addEventListener('mouseenter', function() {
+    tooltipTimeout = setTimeout(() => {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip';
+      tooltip.innerText = elem.getAttribute('data-tooltip');
+      document.body.appendChild(tooltip);
+
+      const rect = elem.getBoundingClientRect();
+      tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+      tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
+
+      elem._tooltip = tooltip;
+    }, 500); // Delay of 500ms
+  });
+
+  elem.addEventListener('mouseleave', function() {
+    clearTimeout(tooltipTimeout);
+    if (elem._tooltip) {
+      elem._tooltip.remove();
+      elem._tooltip = null;
+    }
+  });
+});
+
+// Function to show tooltip
+function showTooltip(event) {
+  const tooltip = event.currentTarget.querySelector('.tooltip-text');
+  tooltip.style.visibility = 'visible';
+  tooltip.style.opacity = '1';
+}
+
+// Function to hide tooltip
+function hideTooltip(event) {
+  const tooltip = event.currentTarget.querySelector('.tooltip-text');
+  tooltip.style.visibility = 'hidden';
+  tooltip.style.opacity = '0';
+}
+
+// Attach event listeners to all buttons with tooltips
+document.querySelectorAll('.tooltip-container').forEach(container => {
+  container.addEventListener('mouseenter', showTooltip);
+  container.addEventListener('mouseleave', hideTooltip);
+});
+
+
 const gridContainer = document.getElementById("main-grid");

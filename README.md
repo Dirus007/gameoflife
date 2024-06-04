@@ -30,7 +30,7 @@ The first generation is created by applying the above rules simultaneously to ev
 
 ### 🖼️ The Canvas / Grid
 
-![Game Grid](data/game-images/Game-Grid.png)
+![Game Grid](data/game-images/grid.png)
 
 | Buttons | What they do |
 | --- | --- |
@@ -40,11 +40,10 @@ The first generation is created by applying the above rules simultaneously to ev
 |   ⏪   | Decreases the speed of the animation |
 | `Clear` | Clears the grid on click, only if the game is not animating at that moment |
 | `Random` | Randomly initializes the grid with initial randomness as 20% |
+|`Change grid size`| This function allow you to change the size of grid according to your preference|
 
 
 ### ⚙️ The Settings
-
-![Game Sidebar](data/game-images/Game-Sidebar.png)
 
 | Settings | What are they for? |
 | --- | --- |
@@ -98,6 +97,43 @@ The Gosper glider gun is the first known gun, and indeed the first known finite 
 <div>
   <img src="data/game-images/Gosper-Glider-Gun.png" alt="Gosper Glider Gun" height="150">
   <img src="https://conwaylife.com/w/images/b/b6/Gosperglidergun.gif" height="150">
+</div>
+
+
+### Pulsar
+
+The pulsar is a period-3 oscillator, meaning it returns to its initial state after three generations. It’s a symmetric pattern and one of the most recognized oscillators in the Game of Life.
+
+<div>
+  <img src="data/game-images/Pulsar.png" alt="Pulsar" height="150">
+  <img src="https://conwaylife.com/w/images/e/ef/Pulsar.gif" height="150">
+</div>
+
+### Circle of Fire
+
+This term isn’t standard in the Game of Life nomenclature but could refer to a specific type of oscillator or a similar repeating pattern that creates a visual effect resembling a circle of fire.
+
+<div>
+  <img src="data/game-images/Circle-of-Fire.png" alt="Circle-of-Fire" height="150">
+  <img src="https://conwaylife.com/w/images/5/50/Circleoffire.gif" height="150">
+</div>
+
+### Quadpole
+
+The quadpole is the eighth most common oscillator in Achim Flammenkamp's census, being less common than the bipole but more common than the great on-off. It is the eighth most common oscillator on Adam P. Goucher's Catagolue.
+
+<div>
+  <img src="data/game-images/Quadpole.png" alt="Quadpole" height="150">
+  <img src="https://conwaylife.com/w/images/6/6d/Quadpole.gif" height="150">
+</div>
+
+### Spider
+
+Spider is a c/5 orthogonal spaceship that was discovered by David Bell on April 14, 1997. It is the smallest known c/5 orthogonal spaceship. Its side sparks have proven to be very useful in constructing puffers and rakes.
+
+<div>
+  <img src="data/game-images/Spider.png" alt="Spider" height="150">
+  <img src="https://conwaylife.com/w/images/9/9f/Spider.gif" height="150">
 </div>
 
 ### More Configurations
